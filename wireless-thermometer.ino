@@ -89,7 +89,7 @@ void sendIPAddressNotification() {
   String ipAddress = WiFi.localIP().toString();
   String macAddress = WiFi.macAddress();
   String appVersion = String(APP_VERSION);
-  sendGetRequest(ipAddress, macAddress, appVersion);
+  sendPostRequest(ipAddress, macAddress, appVersion);
   Serial.println("DONE.");
 }
 
@@ -155,14 +155,18 @@ void turnLedOff() {
   digitalWrite(PIN_LED, HIGH);
 }
 
-void sendGetRequest(String ipAddress, String macAddress, String appVersion) {
-  // Full IFTTT webhook URL: "http://maker.ifttt.com/trigger/{event_name}/with/key/{api_key}?value1=My_IP_Address&value2=My_MAC_Address&value3=My_Application_Version";
-  String url = String("http://maker.ifttt.com/trigger/") + IFTTT_WEBHOOK_EVENT_NAME + "/with/key/" + IFTTT_WEBHOOK_API_KEY + "?value1=" + ipAddress + "&value2=" + macAddress + "&value3=" + appVersion;
-  Serial.println("Sending GET request to " + url);
+void sendPostRequest(String ipAddress, String macAddress, String appVersion) {
+  // Full IFTTT webhook URL: "http://maker.ifttt.com/trigger/{event_name}/with/key/{api_key}
+  String url = String("http://maker.ifttt.com/trigger/") + IFTTT_WEBHOOK_EVENT_NAME + "/with/key/" + IFTTT_WEBHOOK_API_KEY;
+  Serial.println("Sending POST request to " + url);
+
+  String requestBody = "value1=" + ipAddress + "&value2=" + macAddress + "&value3=" + appVersion;
+  Serial.println("HTTP request body: " + requestBody);
 
   HTTPClient http;
   http.begin(url);
-  int statusCode = http.GET();
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  int statusCode = http.POST(requestBody);
 
   Serial.printf("Received HTTP status code: %d\r\n", statusCode);
   if (statusCode > 0) {
