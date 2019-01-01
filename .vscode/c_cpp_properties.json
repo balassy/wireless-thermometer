@@ -3,12 +3,12 @@
         {
             "name": "Arduino",
             "includePath": [
-              "C:\\Users\\balassy\\Documents\\Arduino\\libraries\\DHT_sensor_library_for_ESPx",
-              "C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr\\avr\\include\\**",
-              "C:\\Users\\balassy\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
-              "C:\\Users\\balassy\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.2\\**",
-              "C:\\Users\\balassy\\Documents\\Arduino\\**",
-              "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\IDE\\VC\\Linux\\include\\usr\\lib\\gcc\\x86_64-linux-gnu\\5\\include\\**",
+              "${env:USERPROFILE}\\Documents\\Arduino\\**",
+              "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\DHT_sensor_library_for_ESPx",
+              "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\tools\\**",
+              "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.2\\**",
+              "${env:ProgramFiles(x86)}\\Arduino\\hardware\\tools\\avr\\avr\\include\\**",
+              "${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\IDE\\VC\\Linux\\include\\usr\\lib\\gcc\\x86_64-linux-gnu\\5\\include\\**",
               "${workspaceFolder}/**"
             ],
             "defines": [
