@@ -1,33 +1,19 @@
 // Platform libraries.
-#include <Arduino.h>            // To add IntelliSense for platform constants.
-#include <ESP8266WebServer.h>   // To operate as a webserver.
-#include <ESP8266WiFi.h>        // To connect to the WiFi network.
-
-// Third party libraries.
-#include <DHTesp.h>             // To read DHT22 sensor values: https://github.com/beegee-tokyo/DHTesp
+#include <Arduino.h>           // To add IntelliSense for platform constants.
+#include <ESP8266WebServer.h>  // To operate as a webserver.
+#include <ESP8266WiFi.h>       // To connect to the WiFi network.
 
 // My classes.
-#include "magicmirror-client.h"; // To manage the communication with the MagicMirror.
-#include "ifttt-client.h";       // To manage the communication with the IFTTT service.
+#include "dht-client.h"          // To manage the temperature sensor;
+#include "ifttt-client.h"        // To manage the communication with the IFTTT service.
+#include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
 
 #include "config.h"  // To store configuration and secrets.
 
 ESP8266WebServer webServer(80);
-DHTesp dht;
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
-
-struct Measurement {
-  float temperature;
-  float humidity;
-  const char* status;
-  float dewPoint;
-  float heatIndex;
-  byte perception;
-  const char* perceptionString;
-  float comfortRatio;
-  const char* comfortStateString;
-};
+DhtClient dht;
 
 void setup() {
   initSerial();
@@ -90,7 +76,7 @@ void initWebServer() {
 
 void initTemperatureSensor() {
   Serial.printf("Initializing temperature sensor on pin %d...", PIN_TEMPERATURE_SENSOR);
-  dht.setup(PIN_TEMPERATURE_SENSOR, DHTesp::DHT22);
+  dht.setPin(PIN_TEMPERATURE_SENSOR);
   Serial.println("DONE.");
 }
 
@@ -129,7 +115,7 @@ void onRootRequest() {
 void onTempRequest() {
   Serial.println("Received HTTP request to /temp");
   turnLedOff();
-  Measurement measurement = getMeasuredData();
+  Measurement measurement = dht.getMeasuredData();
   magicMirror.sendTemperature(measurement.temperature);
   String response = buildTempReponse(measurement);
   sendResponse(response);
@@ -151,58 +137,12 @@ String buildTempReponse(Measurement& measurement) {
          "Comfort: " + measurement.comfortRatio + " - " + measurement.comfortStateString;
 }
 
-Measurement getMeasuredData() {
-  TempAndHumidity sensorData = dht.getTempAndHumidity();
-
-  Measurement measurement;
-  measurement.temperature = sensorData.temperature;
-  measurement.humidity = sensorData.humidity;
-  measurement.status = dht.getStatusString();
-  measurement.dewPoint = dht.computeDewPoint(sensorData.temperature, sensorData.humidity, false);
-  measurement.heatIndex = dht.computeHeatIndex(sensorData.temperature, sensorData.humidity, false);
-  measurement.perception = dht.computePerception(sensorData.temperature, sensorData.humidity, false);
-  measurement.perceptionString = getPerceptionString(measurement.perception);
-
-  ComfortState cs;
-  measurement.comfortRatio = dht.getComfortRatio(cs, sensorData.temperature, sensorData.humidity, false);
-  measurement.comfortStateString = getComfortStateString(cs);
-
-  return measurement;
-}
-
 void turnLedOn() {
   digitalWrite(PIN_LED, LOW);
 }
 
 void turnLedOff() {
   digitalWrite(PIN_LED, HIGH);
-}
-
-const char* getPerceptionString(byte perception) {
-  switch (perception) {
-    case Perception_Dry: return "Dry";
-    case Perception_VeryComfy: return "Very comfy";
-    case Perception_Comfy: return "Comfy";
-    case Perception_Ok: return "Ok";
-    case Perception_UnComfy: return "Uncomfy";
-    case Perception_QuiteUnComfy: return "Quite uncomfy";
-    case Perception_VeryUnComfy: return "Very uncomfy";
-    case Perception_SevereUncomfy: return "Severy uncomfy";
-  }
-}
-
-const char* getComfortStateString(ComfortState comfortState) {
-  switch (comfortState) {
-    case Comfort_OK: return "Ok";
-    case Comfort_TooHot: return "Too hot";
-    case Comfort_TooCold: return "Too cold";
-    case Comfort_TooDry: return "Too dry";
-    case Comfort_TooHumid: return "Too humid";
-    case Comfort_HotAndHumid: return "Hot and humid";
-    case Comfort_HotAndDry: return "Hot and dry";
-    case Comfort_ColdAndHumid: return "Cold and humid";
-    case Comfort_ColdAndDry: return "Cold and dry";
-  }
 }
 
 const char* wl_status_to_string(wl_status_t status) {
