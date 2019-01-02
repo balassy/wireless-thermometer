@@ -1,13 +1,20 @@
+// Platform libraries.
 #include <Arduino.h>            // To add IntelliSense for platform constants.
-#include <DHTesp.h>             // To read DHT22 sensor values: https://github.com/beegee-tokyo/DHTesp
 #include <ESP8266HTTPClient.h>  // To send HTTP requests.
 #include <ESP8266WebServer.h>   // To operate as a webserver.
 #include <ESP8266WiFi.h>        // To connect to the WiFi network.
+
+// Third party libraries.
+#include <DHTesp.h>             // To read DHT22 sensor values: https://github.com/beegee-tokyo/DHTesp
+
+// My classes.
+#include "magicmirror-client.h"; // To manage the communication with the MagicMirror.
 
 #include "config.h"  // To store configuration and secrets.
 
 ESP8266WebServer webServer(80);
 DHTesp dht;
+MagicMirrorClient magicMirror;
 
 struct Measurement {
   float temperature;
@@ -27,6 +34,7 @@ void setup() {
   initNetwork();
   initWebServer();
   initTemperatureSensor();
+  initMagicMirrorClient();
 
   sendIPAddressNotification();
   turnLedOn();
@@ -84,6 +92,12 @@ void initTemperatureSensor() {
   Serial.println("DONE.");
 }
 
+void initMagicMirrorClient() {
+  Serial.printf("Initializing MagicMirror client to host %s...", MAGIC_MIRROR_HOST);
+  magicMirror.setHostUrl(MAGIC_MIRROR_HOST);
+  Serial.println("DONE.");
+}
+
 void sendIPAddressNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
@@ -108,6 +122,7 @@ void onTempRequest() {
   Serial.println("Received HTTP request to /temp");
   turnLedOff();
   Measurement measurement = getMeasuredData();
+  magicMirror.sendTemperature(measurement.temperature);
   String response = buildTempReponse(measurement);
   sendResponse(response);
   turnLedOn();

@@ -12,3 +12,5 @@ const char* WIFI_PASSWORD = "TODO_MY_NETWORK_PASSWORD";  // The password for the
 
 const char* IFTTT_WEBHOOK_EVENT_NAME = "TODO_MY_IFTTT_EVENT_NAME";  // The name of the IFTTT event to trigger when the device starts.
 const char* IFTTT_WEBHOOK_API_KEY = "TODO_MY_IFTTT_API_KEY";        // The IFTTT API key used to trigger the above event.
+
+const char* MAGIC_MIRROR_HOST = "http://192.168.0.123:8080";  // The IP address and port number of the MagicMirror device on the network.
