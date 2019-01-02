@@ -7,6 +7,7 @@
 #include "dht-client.h"          // To manage the temperature sensor;
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
+#include "status-led.h"          // To control the status LED.
 
 #include "config.h"  // To store configuration and secrets.
 
@@ -14,6 +15,7 @@ ESP8266WebServer webServer(80);
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
 DhtClient dht;
+StatusLed led;
 
 void setup() {
   initSerial();
@@ -25,7 +27,7 @@ void setup() {
   initIftttClient();
 
   sendIPAddressNotification();
-  turnLedOn();
+  led.turnOn();
   Serial.printf("Application version: %s\n", APP_VERSION);
   Serial.println("Setup completed.");
 }
@@ -38,8 +40,7 @@ void initSerial() {
 
 void initLed() {
   Serial.printf("Initializing LED on pin %d...", PIN_LED);
-  pinMode(PIN_LED, OUTPUT);
-  digitalWrite(PIN_LED, LOW);
+  led.setPin(PIN_LED);
   Serial.println("DONE.");
 }
 
@@ -53,9 +54,9 @@ void initNetwork() {
 
   while (WiFi.status() != WL_CONNECTED) {
     if (ledOn) {
-      turnLedOff();
+      led.turnOff();
     } else {
-      turnLedOn();
+      led.turnOn();
     }
     ledOn = !ledOn;
 
@@ -107,19 +108,19 @@ void loop() {
 
 void onRootRequest() {
   Serial.println("Received HTTP request to /");
-  turnLedOff();
+  led.turnOff();
   sendResponse(String("OK from ") + WiFi.localIP().toString().c_str());
-  turnLedOn();
+  led.turnOn();
 }
 
 void onTempRequest() {
   Serial.println("Received HTTP request to /temp");
-  turnLedOff();
+  led.turnOff();
   Measurement measurement = dht.getMeasuredData();
   magicMirror.sendTemperature(measurement.temperature);
   String response = buildTempReponse(measurement);
   sendResponse(response);
-  turnLedOn();
+  led.turnOn();
 }
 
 void sendResponse(String content) {
@@ -135,14 +136,6 @@ String buildTempReponse(Measurement& measurement) {
          "Heat index: " + measurement.heatIndex + "\r\n" +
          "Perception: " + measurement.perception + " - " + measurement.perceptionString + "\r\n" +
          "Comfort: " + measurement.comfortRatio + " - " + measurement.comfortStateString;
-}
-
-void turnLedOn() {
-  digitalWrite(PIN_LED, LOW);
-}
-
-void turnLedOff() {
-  digitalWrite(PIN_LED, HIGH);
 }
 
 const char* wl_status_to_string(wl_status_t status) {
