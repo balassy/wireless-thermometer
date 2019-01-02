@@ -1,6 +1,5 @@
 // Platform libraries.
 #include <Arduino.h>            // To add IntelliSense for platform constants.
-#include <ESP8266HTTPClient.h>  // To send HTTP requests.
 #include <ESP8266WebServer.h>   // To operate as a webserver.
 #include <ESP8266WiFi.h>        // To connect to the WiFi network.
 
@@ -9,12 +8,14 @@
 
 // My classes.
 #include "magicmirror-client.h"; // To manage the communication with the MagicMirror.
+#include "ifttt-client.h";       // To manage the communication with the IFTTT service.
 
 #include "config.h"  // To store configuration and secrets.
 
 ESP8266WebServer webServer(80);
 DHTesp dht;
 MagicMirrorClient magicMirror;
+IftttClient ifttt;
 
 struct Measurement {
   float temperature;
@@ -35,6 +36,7 @@ void setup() {
   initWebServer();
   initTemperatureSensor();
   initMagicMirrorClient();
+  initIftttClient();
 
   sendIPAddressNotification();
   turnLedOn();
@@ -98,12 +100,18 @@ void initMagicMirrorClient() {
   Serial.println("DONE.");
 }
 
+void initIftttClient() {
+  Serial.print("Initializing IFTTT client...");
+  ifttt.setApiKey(IFTTT_WEBHOOK_API_KEY);
+  Serial.println("DONE.");
+}
+
 void sendIPAddressNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
   String macAddress = WiFi.macAddress();
   String appVersion = String(APP_VERSION);
-  sendPostRequest(ipAddress, macAddress, appVersion);
+  ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, ipAddress, macAddress, appVersion);
   Serial.println("DONE.");
 }
 
@@ -168,28 +176,6 @@ void turnLedOn() {
 
 void turnLedOff() {
   digitalWrite(PIN_LED, HIGH);
-}
-
-void sendPostRequest(String ipAddress, String macAddress, String appVersion) {
-  // Full IFTTT webhook URL: "http://maker.ifttt.com/trigger/{event_name}/with/key/{api_key}
-  String url = String("http://maker.ifttt.com/trigger/") + IFTTT_WEBHOOK_EVENT_NAME + "/with/key/" + IFTTT_WEBHOOK_API_KEY;
-  Serial.println("Sending POST request to " + url);
-
-  String requestBody = "value1=" + ipAddress + "&value2=" + macAddress + "&value3=" + appVersion;
-  Serial.println("HTTP request body: " + requestBody);
-
-  HTTPClient http;
-  http.begin(url);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  int statusCode = http.POST(requestBody);
-
-  Serial.printf("Received HTTP status code: %d\r\n", statusCode);
-  if (statusCode > 0) {
-    String responseBody = http.getString();
-    Serial.println("Received HTTP response body: " + responseBody);
-  }
-
-  http.end();
 }
 
 const char* getPerceptionString(byte perception) {
