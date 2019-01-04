@@ -2,22 +2,26 @@
 #include <Arduino.h>           // To add IntelliSense for platform constants.
 #include <ESP8266WebServer.h>  // To operate as a webserver.
 #include <ESP8266WiFi.h>       // To connect to the WiFi network.
+#include <Ticker.h>            // To conveniently manage timer intervals.
 
 // My classes.
-#include "dht-client.h"          // To manage the temperature sensor;
-#include "status-led.h"          // To control the status LED.
+#include "dht-client.h"          // To manage the temperature sensor.
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
+#include "status-led.h"          // To control the status LED.
 #include "thingspeak-client.h"   // To send measured data to the ThingSpeak service.
 
 #include "config.h"  // To store configuration and secrets.
 
 ESP8266WebServer webServer(80);
+Ticker timer;
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
 ThingSpeakClient thingSpeak;
 DhtClient dht;
 StatusLed led;
+
+bool timerTriggerActivated = false;
 
 void setup() {
   initSerial();
@@ -28,6 +32,7 @@ void setup() {
   initMagicMirrorClient();
   initIftttClient();
   initThingSpeakClient();
+  initTimer();
 
   sendIPAddressNotification();
   led.turnOn();
@@ -102,6 +107,12 @@ void initThingSpeakClient() {
   Serial.println("DONE.");
 }
 
+void initTimer() {
+  Serial.print("Initializing timer...");
+  timer.attach(UPDATE_INTERVAL_SECONDS, onTimerInterval);
+  Serial.println("DONE.");
+}
+
 void sendIPAddressNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
@@ -114,16 +125,29 @@ void sendIPAddressNotification() {
 void loop() {
   webServer.handleClient();
 
-  delay(60000);
-  Measurement m = dht.getMeasuredData();
+  if (timerTriggerActivated) {
+    Serial.print("Timer: ");
+    Measurement m = dht.getMeasuredData();
 
-  Serial.print("Sending data to ThingSpeak...");
-  thingSpeak.writeField(String(m.temperature), String(m.humidity), String(m.perceptionString) + " " + String(m.comfortStateString));
-  Serial.println("DONE.");
+    Serial.print("Sending data to ThingSpeak...");
+    thingSpeak.writeField(String(m.temperature), String(m.humidity), String(m.perceptionString) + " " + String(m.comfortStateString));
+    Serial.println("DONE.");
 
-  Serial.print("Sending data to MagicMirror...");
-  magicMirror.sendTemperature(m.temperature);
-  Serial.println("DONE.");  
+    Serial.print("Sending data to MagicMirror...");
+    magicMirror.sendTemperature(m.temperature);
+    Serial.println("DONE.");
+
+    timerTriggerActivated = false;
+    Serial.print("Timer: DONE.");
+  }
+}
+
+void onTimerInterval() {
+  // IMPORTANT:
+  // "It is currently not recommended to do blocking IO operations (network, serial, file) from Ticker callback functions. 
+  // Instead, set a flag inside the ticker callback and check for that flag inside the loop function."
+  // Source: https://github.com/adafruit/ESP8266-Arduino#ticker
+  timerTriggerActivated = true;
 }
 
 void onRootRequest() {
