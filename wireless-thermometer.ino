@@ -5,15 +5,17 @@
 
 // My classes.
 #include "dht-client.h"          // To manage the temperature sensor;
+#include "status-led.h"          // To control the status LED.
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
-#include "status-led.h"          // To control the status LED.
+#include "thingspeak-client.h"   // To send measured data to the ThingSpeak service.
 
 #include "config.h"  // To store configuration and secrets.
 
 ESP8266WebServer webServer(80);
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
+ThingSpeakClient thingSpeak;
 DhtClient dht;
 StatusLed led;
 
@@ -25,6 +27,7 @@ void setup() {
   initTemperatureSensor();
   initMagicMirrorClient();
   initIftttClient();
+  initThingSpeakClient();
 
   sendIPAddressNotification();
   led.turnOn();
@@ -93,6 +96,12 @@ void initIftttClient() {
   Serial.println("DONE.");
 }
 
+void initThingSpeakClient() {
+  Serial.print("Initializing ThingSpeak client...");
+  thingSpeak.setApiKey(THINGSPEAK_API_KEY);
+  Serial.println("DONE.");
+}
+
 void sendIPAddressNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
@@ -104,6 +113,17 @@ void sendIPAddressNotification() {
 
 void loop() {
   webServer.handleClient();
+
+  delay(60000);
+  Measurement m = dht.getMeasuredData();
+
+  Serial.print("Sending data to ThingSpeak...");
+  thingSpeak.writeField(String(m.temperature), String(m.humidity), String(m.perceptionString) + " " + String(m.comfortStateString));
+  Serial.println("DONE.");
+
+  Serial.print("Sending data to MagicMirror...");
+  magicMirror.sendTemperature(m.temperature);
+  Serial.println("DONE.");  
 }
 
 void onRootRequest() {

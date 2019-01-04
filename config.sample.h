@@ -14,3 +14,5 @@ const char* IFTTT_WEBHOOK_EVENT_NAME = "TODO_MY_IFTTT_EVENT_NAME";  // The name 
 const char* IFTTT_WEBHOOK_API_KEY = "TODO_MY_IFTTT_API_KEY";        // The IFTTT API key used to trigger the above event.
 
 const char* MAGIC_MIRROR_HOST = "http://192.168.0.123:8080";  // The IP address and port number of the MagicMirror device on the network.
+
+const char* THINGSPEAK_API_KEY = "TODO_MY_THINGSPEAK_API_KEY";  // The API key with write permission to post data to a ThingSpeak channel.
