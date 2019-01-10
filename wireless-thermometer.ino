@@ -4,6 +4,9 @@
 #include <ESP8266WiFi.h>       // To connect to the WiFi network.
 #include <Ticker.h>            // To conveniently manage timer intervals.
 
+// Third-party libraries.
+#include <WiFiManager.h>  // To manage network configuration and connection.
+
 // My classes.
 #include "dht-client.h"          // To manage the temperature sensor.
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
@@ -15,6 +18,8 @@
 
 ESP8266WebServer webServer(80);
 Ticker timer;
+WiFiManager wifiManager;
+
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
 ThingSpeakClient thingSpeak;
@@ -53,25 +58,8 @@ void initLed() {
 }
 
 void initNetwork() {
-  Serial.printf("Initializing connection to the %s network with MAC address %s", WIFI_SSID, WiFi.macAddress().c_str());
-
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-  bool ledOn = false;
-
-  while (WiFi.status() != WL_CONNECTED) {
-    if (ledOn) {
-      led.turnOff();
-    } else {
-      led.turnOn();
-    }
-    ledOn = !ledOn;
-
-    delay(500);
-    Serial.print(".");
-  }
-
+  Serial.printf("Initializing connection to the network with MAC address %s using WiFiManager (SSID: %s)...", WiFi.macAddress().c_str(), WIFI_AP_SSID);
+  wifiManager.autoConnect(WIFI_AP_SSID, WIFI_AP_PASSWORD);
   Serial.printf("DONE. IP address: %s, MAC address: %s\n", WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str());
 }
 
@@ -144,7 +132,7 @@ void loop() {
 
 void onTimerInterval() {
   // IMPORTANT:
-  // "It is currently not recommended to do blocking IO operations (network, serial, file) from Ticker callback functions. 
+  // "It is currently not recommended to do blocking IO operations (network, serial, file) from Ticker callback functions.
   // Instead, set a flag inside the ticker callback and check for that flag inside the loop function."
   // Source: https://github.com/adafruit/ESP8266-Arduino#ticker
   timerTriggerActivated = true;
