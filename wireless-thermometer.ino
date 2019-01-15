@@ -13,6 +13,7 @@
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
 #include "status-led.h"          // To control the status LED.
 #include "thingspeak-client.h"   // To send measured data to the ThingSpeak service.
+#include "ota-updater.h"         // To manage over-the-air updates of new code.
 
 #include "config.h"  // To store configuration and secrets.
 
@@ -25,6 +26,7 @@ IftttClient ifttt;
 ThingSpeakClient thingSpeak;
 DhtClient dht;
 StatusLed led;
+OTAUpdater updater;
 
 bool timerTriggerActivated = false;
 
@@ -37,6 +39,8 @@ void setup() {
   initMagicMirrorClient();
   initIftttClient();
   initThingSpeakClient();
+  initUpdater();
+
   initTimer();
 
   sendIPAddressNotification();
@@ -95,6 +99,12 @@ void initThingSpeakClient() {
   Serial.println("DONE.");
 }
 
+void initUpdater() {
+  Serial.print("Initializing over-the-air updater...");
+  updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD);
+  Serial.println("DONE.");
+}
+
 void initTimer() {
   Serial.print("Initializing timer...");
   timer.attach(UPDATE_INTERVAL_SECONDS, onTimerInterval);
@@ -112,6 +122,7 @@ void sendIPAddressNotification() {
 
 void loop() {
   webServer.handleClient();
+  updater.handleUpdateRequests();
 
   if (timerTriggerActivated) {
     Serial.print("Timer: ");
