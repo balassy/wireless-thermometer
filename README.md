@@ -59,6 +59,14 @@ Error[4]: End Failed
 ERROR[0]: No Error
 ```
 
+Or the following error:
+
+```
+Uploading...
+[ERROR]: No response from device
+An error occurred while uploading the sketch
+```
+
 During OTA update your ESP device tries to connect to your computer to download the new code. To enable this make sure that you have a hole in your firewall, and your antivirus software (e.g. ESET) does not block this kind of requests.
 
 #### Python.exe is not found
