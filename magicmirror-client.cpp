@@ -6,11 +6,11 @@ void MagicMirrorClient::setHostUrl(String hostUrl) {
   _hostUrl = hostUrl;
 }
 
-void MagicMirrorClient::sendTemperature(float temperature) {
+void MagicMirrorClient::sendTemperature(float temperature, float humidity) {
   String url = _hostUrl + "/remote-temperature";
   Serial.println("MagicMirrorClient: Sending POST request to MagicMirror at " + url);
 
-  String requestBody = "{ \"temp\": " + String(temperature) + " }";
+  String requestBody = "{ \"temp\": " + String(temperature) + ", \"humidity\": " + String(humidity) + " }";
   Serial.println("MagicMirrorClient: HTTP request body: " + requestBody);
 
   HTTPClient http;

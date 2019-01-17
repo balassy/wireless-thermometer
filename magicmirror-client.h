@@ -6,7 +6,7 @@
 class MagicMirrorClient {
   public:
     void setHostUrl(String hostUrl);
-    void sendTemperature(float temperature);
+    void sendTemperature(float temperature, float humidity);
 
   private:
     String _hostUrl;

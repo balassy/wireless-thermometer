@@ -59,7 +59,7 @@ Error[4]: End Failed
 ERROR[0]: No Error
 ```
 
-During OTA update your ESP device tries to connect to your computer to download the update. To enable this make sure that you have a hole in your firewall, and your antivirus software (e.g. ESET) does not block this kind of requests.
+During OTA update your ESP device tries to connect to your computer to download the new code. To enable this make sure that you have a hole in your firewall, and your antivirus software (e.g. ESET) does not block this kind of requests.
 
 #### Python.exe is not found
 

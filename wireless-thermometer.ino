@@ -133,7 +133,7 @@ void loop() {
     Serial.println("DONE.");
 
     Serial.print("Sending data to MagicMirror...");
-    magicMirror.sendTemperature(m.temperature);
+    magicMirror.sendTemperature(m.temperature, m.humidity);
     Serial.println("DONE.");
 
     timerTriggerActivated = false;
@@ -160,7 +160,7 @@ void onTempRequest() {
   Serial.println("Received HTTP request to /temp");
   led.turnOff();
   Measurement measurement = dht.getMeasuredData();
-  magicMirror.sendTemperature(measurement.temperature);
+  magicMirror.sendTemperature(measurement.temperature, measurement.humidity);
   String response = buildTempReponse(measurement);
   sendResponse(response);
   led.turnOn();
