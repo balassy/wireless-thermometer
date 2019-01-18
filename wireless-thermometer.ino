@@ -101,7 +101,7 @@ void initThingSpeakClient() {
 
 void initUpdater() {
   Serial.print("Initializing over-the-air updater...");
-  updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD);
+  updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD, ifttt);
   Serial.println("DONE.");
 }
 
