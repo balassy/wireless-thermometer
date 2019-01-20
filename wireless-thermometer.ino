@@ -11,9 +11,9 @@
 #include "dht-client.h"          // To manage the temperature sensor.
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
+#include "ota-updater.h"         // To manage over-the-air updates of new code.
 #include "status-led.h"          // To control the status LED.
 #include "thingspeak-client.h"   // To send measured data to the ThingSpeak service.
-#include "ota-updater.h"         // To manage over-the-air updates of new code.
 
 #include "config.h"  // To store configuration and secrets.
 
@@ -29,6 +29,7 @@ StatusLed led;
 OTAUpdater updater;
 
 bool timerTriggerActivated = false;
+bool isFirstLoop = true;
 
 void setup() {
   initSerial();
@@ -119,30 +120,24 @@ void sendStartNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
   String macAddress = WiFi.macAddress();
-  
+
   String message = String("Your device is starting. Reason: ") + ESP.getResetReason() + " (" + ESP.getResetInfo() + ")";
   ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Starting", message);
   Serial.println("DONE.");
 }
 
 void loop() {
+  // Updating the targets before anything else to notify the targets that the "loop" is running after the completed "setup".
+  if (isFirstLoop) {
+    measureAndUpdateTargets();
+    isFirstLoop = false;
+  }
+
   webServer.handleClient();
   updater.handleUpdateRequests();
 
   if (timerTriggerActivated) {
-    Serial.print("Timer: ");
-    Measurement m = dht.getMeasuredData();
-
-    Serial.print("Sending data to ThingSpeak...");
-    thingSpeak.writeField(String(m.temperature), String(m.humidity), String(m.perceptionString) + " " + String(m.comfortStateString));
-    Serial.println("DONE.");
-
-    Serial.print("Sending data to MagicMirror...");
-    magicMirror.sendTemperature(m.temperature, m.humidity);
-    Serial.println("DONE.");
-
-    timerTriggerActivated = false;
-    Serial.print("Timer: DONE.");
+    measureAndUpdateTargets();
   }
 }
 
@@ -152,6 +147,22 @@ void onTimerInterval() {
   // Instead, set a flag inside the ticker callback and check for that flag inside the loop function."
   // Source: https://github.com/adafruit/ESP8266-Arduino#ticker
   timerTriggerActivated = true;
+}
+
+void measureAndUpdateTargets() {
+  Serial.print("Timer: ");
+  Measurement m = dht.getMeasuredData();
+
+  Serial.print("Sending data to ThingSpeak...");
+  thingSpeak.writeField(String(m.temperature), String(m.humidity), String(m.perceptionString) + " " + String(m.comfortStateString));
+  Serial.println("DONE.");
+
+  Serial.print("Sending data to MagicMirror...");
+  magicMirror.sendTemperature(m.temperature, m.humidity);
+  Serial.println("DONE.");
+
+  timerTriggerActivated = false;
+  Serial.print("Timer: DONE.");
 }
 
 void onRootRequest() {
