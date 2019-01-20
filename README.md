@@ -1,6 +1,50 @@
-# Wireless thermometer (IoT device) - Work in Progress!
+# Wireless thermometer aka. SmarTherm (IoT device) - Work in Progress!
 
 A network connected thermometer implemented with ESP8266 and DHT22.
+
+## Event notifications
+
+SmarTherm is capable of sending notifications about the following events:
+- An over-the-air update is started.
+- An over-the-air update is finished.
+- An over-the-air update is failed.
+- The device is started.
+
+Events are sent to the free [IFTTT](https://ifttt.com/) Maker service [webhooks](https://ifttt.com/maker_webhooks) in a HTTP POST request. The request has the following parameters:
+- The event name is the value set in the `IFTTT_WEBHOOK_EVENT_NAME` variable in `config.h`.
+- The API key is the value set in the `IFTTT_WEBHOOK_API_KEY` variable in `config.h`.
+- The `value1` parameter contains a title-like short summary of the event (e.g. "Starting").
+- The `value2` parameter contains the detailed description of the event.
+- The `value3` parameter contains information about the device (name, version, IP and MAC addresses).
+
+### E-mail notifications
+
+IFTTT allows you to forward these events to your e-mail mailbox, to your phone, to trigger an action - almost anything you want, it is totally up to you.
+
+The following configuration shows how to forward the events sent by SmarTherm to your Gmail inbox:
+
+1. On IFTTT [Create a New Applet](https://ifttt.com/create).
+2. In the "Choose a service (Step 1 of 6)" step select `Webhooks` as the source ("this").
+3. In the "Choose a trigger (Step 2 of 6)" step select `Receive a web request`.
+4. In the "Complete trigger fields (Step 2 of 6)" step enter the event name you specified in `IFTTT_WEBHOOK_EVENT_NAME` value in `config.h`, for example `SmarTherm`, and click the "Create Trigger" button.
+5. In the "Choose action service (Step 3 of 6)" step select `Gmail` as the target ("that").
+6. In the "Choose action (Step 4 of 6)" step select `Send an email`.
+7. In the "Complete action fields (Step 5 of 6)" set the fields as the following:
+  - Set "To address" to the destination e-mail address.
+  - Set "Subject" to `[SmarTherm] {{Value1}}`
+  - Set the "Body (optional)" to this value:
+  ```
+{{Value2}}<br>
+<br>
+Device: {{Value3}}<br>
+<br>
+When: {{OccurredAt}}
+  ```
+  - Click the "Create action" button.
+8. In the "Review and finish (Step 6 of 6)" step click the "Finish" button.
+
+To get your API key, navigate to the https://ifttt.com/maker_webhooks page and click the "Documentation" link on the top. Copy the API key from that page and paste it into the `IFTTT_WEBHOOK_API_KEY` variable in `config.h`.
+
 
 ## Over-the-air updates (OTA)
 
