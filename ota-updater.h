@@ -5,7 +5,7 @@
 
 #include "ifttt-client.h"
 
-extern const char* IFTTT_OTA_WEBHOOK_EVENT_NAME;
+extern const char* IFTTT_WEBHOOK_EVENT_NAME;
 
 class OTAUpdater {
  public:

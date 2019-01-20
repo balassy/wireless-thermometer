@@ -43,7 +43,7 @@ void setup() {
 
   initTimer();
 
-  sendIPAddressNotification();
+  sendStartNotification();
   led.turnOn();
   Serial.printf("Application version: %s\n", APP_VERSION);
   Serial.println("Setup completed.");
@@ -90,6 +90,10 @@ void initMagicMirrorClient() {
 void initIftttClient() {
   Serial.print("Initializing IFTTT client...");
   ifttt.setApiKey(IFTTT_WEBHOOK_API_KEY);
+
+  String deviceName = String(OTA_UPDATE_HOSTNAME) + " (Version: " + APP_VERSION + ", IP: " + WiFi.localIP().toString() + ", MAC: " + WiFi.macAddress() + ")";
+  ifttt.setDeviceName(deviceName);
+
   Serial.println("DONE.");
 }
 
@@ -111,12 +115,13 @@ void initTimer() {
   Serial.println("DONE.");
 }
 
-void sendIPAddressNotification() {
+void sendStartNotification() {
   Serial.print("Sending notification about the IP address...");
   String ipAddress = WiFi.localIP().toString();
   String macAddress = WiFi.macAddress();
-  String appVersion = String(APP_VERSION);
-  ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, ipAddress, macAddress, appVersion);
+  
+  String message = String("Your device is starting. Reason: ") + ESP.getResetReason() + " (" + ESP.getResetInfo() + ")";
+  ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Starting", message);
   Serial.println("DONE.");
 }
 

@@ -17,11 +17,11 @@ void OTAUpdater::initialize(const char* hostName, const char* password, IftttCli
 
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
     Serial.println("Updater: Start updating " + type);
-    ifttt.triggerEvent(IFTTT_OTA_WEBHOOK_EVENT_NAME, "Update started.", "", "");
+    ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Update started", "An over-the-air update has been started on your device.");
   });
 
   ArduinoOTA.onEnd([&]() {
-    ifttt.triggerEvent(IFTTT_OTA_WEBHOOK_EVENT_NAME, "Update ended.", "", "");
+    ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Update ended", "The over-the-air update has been finished on your device.");
     Serial.println("\nUpdater: Ended.");
   });
 
@@ -43,7 +43,7 @@ void OTAUpdater::initialize(const char* hostName, const char* password, IftttCli
       Serial.println("Updater: End Failed");
     }
 
-    ifttt.triggerEvent(IFTTT_OTA_WEBHOOK_EVENT_NAME, "Update failed", "", "");
+    ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Update failed", "The over-the-air update has been failed on your device.");
   });
 
   ArduinoOTA.begin();

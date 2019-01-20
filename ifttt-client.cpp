@@ -6,7 +6,15 @@ void IftttClient::setApiKey(String apiKey) {
   _apiKey = apiKey;
 }
 
-void IftttClient::triggerEvent(String eventName, String value1, String value2, String value3) {
+void IftttClient::setDeviceName(String deviceName) {
+  _deviceName = deviceName;
+}
+
+void IftttClient::triggerEvent(String eventName, String title, String message) {
+  triggerRawEvent(eventName, title, message, _deviceName);
+}
+
+void IftttClient::triggerRawEvent(String eventName, String value1, String value2, String value3) {
   String url = String("http://maker.ifttt.com/trigger/") + eventName + "/with/key/" + _apiKey;
   Serial.println("IftttClient: Sending POST request to " + url);
 
