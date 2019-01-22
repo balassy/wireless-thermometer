@@ -7,7 +7,7 @@
               "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\DHT_sensor_library_for_ESPx",
               "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\WiFiManager",
               "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\tools\\**",
-              "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.2\\**",
+              "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.0-beta2\\**",
               "${env:ProgramFiles(x86)}\\Arduino\\hardware\\tools\\avr\\avr\\include\\**",
               "${env:ProgramFiles(x86)}\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\IDE\\VC\\Linux\\include\\usr\\lib\\gcc\\x86_64-linux-gnu\\5\\include\\**",
               "${workspaceFolder}/**"

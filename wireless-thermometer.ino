@@ -100,7 +100,8 @@ void initIftttClient() {
 
 void initThingSpeakClient() {
   Serial.print("Initializing ThingSpeak client...");
-  thingSpeak.setApiKey(THINGSPEAK_API_KEY);
+  //thingSpeak.setApiKey(THINGSPEAK_API_KEY);
+  thingSpeak.initialize(THINGSPEAK_API_KEY, &ifttt);
   Serial.println("DONE.");
 }
 
