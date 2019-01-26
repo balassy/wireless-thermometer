@@ -10,6 +10,10 @@ SmarTherm not only collects data, but forwards them to cloud services.
 
 [Blynk](https://www.blynk.cc/) is a platform with iOS and Androids apps to control and query IoT devices over the Internet. It is a digital dashboard where you can build a graphic interface for your project by simply dragging and dropping widgets.
 
+An example dashboard for Smartherm may look like this:
+
+![](./doc/screenshot-blynk.png)
+
 #### Configuration
 
 To set up Blynk follow these steps:
@@ -32,7 +36,7 @@ Sending data to Blynk...DONE.
 
 ##### Invalid auth token
 
-This error is written to the log if the Blynk service rejects your auth token. It an happen if you made a typo, or (and this is interesting) also if you copy-pasted it from the e-mail. I recommend deleting and manually typing back the first and the last few characters, including the opening and closing quotation marks. (I know it sounds crazy, but worked for me and others also.)
+This error is written to the log if the Blynk service rejects your auth token. It can happen if you made a typo, or (and this is interesting) also if you copy-pasted the token from the e-mail. I recommend deleting and manually typing back the first and the last few characters, including the opening and closing quotation marks. (I know it sounds crazy, but worked for me and others also.)
 
 
 ## Event notifications
