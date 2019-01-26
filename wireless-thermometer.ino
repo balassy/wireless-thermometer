@@ -14,6 +14,7 @@
 #include "ota-updater.h"         // To manage over-the-air updates of new code.
 #include "status-led.h"          // To control the status LED.
 #include "thingspeak-client.h"   // To send measured data to the ThingSpeak service.
+#include "blynk-client.h"        // To send measured data to the Blynk service.
 
 #include "config.h"  // To store configuration and secrets.
 
@@ -24,6 +25,7 @@ WiFiManager wifiManager;
 MagicMirrorClient magicMirror;
 IftttClient ifttt;
 ThingSpeakClient thingSpeak;
+BlynkClient blynk;
 DhtClient dht;
 StatusLed led;
 OTAUpdater updater;
@@ -40,11 +42,13 @@ void setup() {
   initMagicMirrorClient();
   initIftttClient();
   initThingSpeakClient();
+  initBlynkClient();
   initUpdater();
 
   initTimer();
 
   sendStartNotification();
+
   led.turnOn();
   Serial.printf("Application version: %s\n", APP_VERSION);
   Serial.println("Setup completed.");
@@ -104,6 +108,12 @@ void initThingSpeakClient() {
   Serial.println("DONE.");
 }
 
+void initBlynkClient() {
+  Serial.print("Initializing Blynk client...");
+  blynk.setAuthToken(BLYNK_AUTH_TOKEN);
+  Serial.println("DONE.");
+}
+
 void initUpdater() {
   Serial.print("Initializing over-the-air updater...");
   updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD, ifttt);
@@ -135,6 +145,7 @@ void loop() {
 
   webServer.handleClient();
   updater.handleUpdateRequests();
+  blynk.handleLoop();
 
   if (timerTriggerActivated) {
     measureAndUpdateTargets();
@@ -159,6 +170,10 @@ void measureAndUpdateTargets() {
 
   Serial.print("Sending data to MagicMirror...");
   magicMirror.sendTemperature(m.temperature, m.humidity);
+  Serial.println("DONE.");
+
+  Serial.print("Sending data to Blynk...");
+  blynk.sendUpdate(m.temperature, m.humidity);
   Serial.println("DONE.");
 
   timerTriggerActivated = false;

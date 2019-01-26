@@ -20,4 +20,6 @@ const char* MAGIC_MIRROR_HOST = "http://192.168.0.123:8080";  // The IP address 
 
 const char* THINGSPEAK_API_KEY = "TODO_MY_THINGSPEAK_API_KEY";  // The API key with write permission to post data to a ThingSpeak channel.
 
-float UPDATE_INTERVAL_SECONDS = 60;  // The frequency of measuring data and sending updates to MagicMirror and ThingSpeak in seconds.
+const char* BLYNK_AUTH_TOKEN = "TODO_MY_BLYNK_API_KEY";  // The authentication token to post data to a Blynk project.
+
+float UPDATE_INTERVAL_SECONDS = 60;  // The frequency of measuring data and sending updates to MagicMirror, ThingSpeak and Blynk in seconds.

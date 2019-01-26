@@ -2,6 +2,39 @@
 
 A network connected thermometer implemented with ESP8266 and DHT22.
 
+## Sending measured data to external services
+
+SmarTherm not only collects data, but forwards them to cloud services.
+
+### Blynk
+
+[Blynk](https://www.blynk.cc/) is a platform with iOS and Androids apps to control and query IoT devices over the Internet. It is a digital dashboard where you can build a graphic interface for your project by simply dragging and dropping widgets.
+
+#### Configuration
+
+To set up Blynk follow these steps:
+
+1. Download the Blynk app from [Apple AppStore](https://itunes.apple.com/us/app/blynk-control-arduino-raspberry/id808760481?ls=1&mt=8) or [Google PlayStore](https://play.google.com/store/apps/details?id=cc.blynk) to your mobile device.
+2. Start the mobile app and follow the instructions to create a new project.
+3. When you create a new project Blynk sends you an auth token in e-mail. Copy this value from the e-mail and paste it into the `BLYNK_AUTH_TOKEN` parameter in `config.h`.
+4. Compile and deploy SmarTherm, and start your device
+5. Add widgets to your Blynk dashboard as you wish. SmarTherm will feed the data to the following pins:
+- Temperature value is sent to the `V16` virtual pin.
+- Humidity value is sent to the `V17` virtual pin.
+
+#### Troubleshooting
+
+In case of any problem connect your device to a serial port monitor and check the logs. For normal operation you should see the following in the log in every measurement cycle:
+
+```
+Sending data to Blynk...DONE.
+```
+
+##### Invalid auth token
+
+This error is written to the log if the Blynk service rejects your auth token. It an happen if you made a typo, or (and this is interesting) also if you copy-pasted it from the e-mail. I recommend deleting and manually typing back the first and the last few characters, including the opening and closing quotation marks. (I know it sounds crazy, but worked for me and others also.)
+
+
 ## Event notifications
 
 SmarTherm is capable of sending notifications about the following events:
