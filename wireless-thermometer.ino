@@ -8,7 +8,8 @@
 #include <WiFiManager.h>  // To manage network configuration and connection.
 
 // My classes.
-#include "dht-client.h"          // To manage the temperature sensor.
+#include "dht-client.h"          // To manage the DHT temperature sensor.
+#include "onewire-client.h"      // To manage the DS18B20 temperature sensor.
 #include "ifttt-client.h"        // To manage the communication with the IFTTT service.
 #include "magicmirror-client.h"  // To manage the communication with the MagicMirror.
 #include "ota-updater.h"         // To manage over-the-air updates of new code.
@@ -27,6 +28,7 @@ IftttClient ifttt;
 ThingSpeakClient thingSpeak;
 BlynkClient blynk;
 DhtClient dht;
+OneWireClient oneWire;
 StatusLed led;
 OTAUpdater updater;
 
@@ -39,6 +41,7 @@ void setup() {
   initNetwork();
   initWebServer();
   initTemperatureSensor();
+  initOneWireSensor();
   initMagicMirrorClient();
   initIftttClient();
   initThingSpeakClient();
@@ -84,6 +87,14 @@ void initTemperatureSensor() {
   Serial.printf("Initializing temperature sensor on pin %d...", PIN_TEMPERATURE_SENSOR);
   dht.setPin(PIN_TEMPERATURE_SENSOR);
   Serial.println("DONE.");
+}
+
+void initOneWireSensor() {
+  Serial.printf("Init OneWire sensor on pin %d... ", 4);
+  oneWire.setPin(4);
+  Serial.print("Connected: ");
+  Serial.print(oneWire.isConnected());
+  Serial.println(" DONE.");
 }
 
 void initMagicMirrorClient() {
@@ -148,6 +159,7 @@ void loop() {
   blynk.handleLoop();
 
   if (timerTriggerActivated) {
+    timerTriggerActivated = false;
     measureAndUpdateTargets();
   }
 }
@@ -176,7 +188,12 @@ void measureAndUpdateTargets() {
   blynk.sendUpdate(m.temperature, m.humidity);
   Serial.println("DONE.");
 
-  timerTriggerActivated = false;
+  Serial.print("Read OneWire temperature: ");
+  float temp = oneWire.getTemperature();
+  Serial.print(temp);
+  blynk.sendUpdate(temp);
+  Serial.println(" DONE.");
+
   Serial.print("Timer: DONE.");
 }
 

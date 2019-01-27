@@ -6,6 +6,7 @@
 class BlynkClient {
  public:
   void setAuthToken(const char* authToken);
+  void sendUpdate(float temperature);
   void sendUpdate(float temperature, float humidity);
   void handleLoop();
 };

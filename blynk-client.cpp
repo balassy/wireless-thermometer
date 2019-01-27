@@ -8,6 +8,10 @@ void BlynkClient::setAuthToken(const char* authToken) {
   Blynk.config(authToken);
 }
 
+void BlynkClient::sendUpdate(float temperature) {
+  Blynk.virtualWrite(V18, temperature);
+}
+
 void BlynkClient::sendUpdate(float temperature, float humidity) {
   Blynk.virtualWrite(V16, temperature);
   Blynk.virtualWrite(V17, humidity);

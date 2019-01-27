@@ -5,7 +5,9 @@
             "includePath": [
               "${env:USERPROFILE}\\Documents\\Arduino\\**",
               "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\Blynk",
+              "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\DallasTemperature",
               "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\DHT_sensor_library_for_ESPx",
+              "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\OneWire",
               "${env:USERPROFILE}\\Documents\\Arduino\\libraries\\WiFiManager",
               "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\tools\\**",
               "${env:LOCALAPPDATA}\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.2\\**",
