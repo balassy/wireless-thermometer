@@ -38,6 +38,8 @@ bool isFirstLoop = true;
 void setup() {
   initSerial();
   initLed();
+  led.onBootStarted();
+
   initNetwork();
   initWebServer();
   initTemperatureSensor();
@@ -52,7 +54,7 @@ void setup() {
 
   sendStartNotification();
 
-  led.turnOn();
+  led.onBootEnded();
   Serial.printf("Application version: %s\n", APP_VERSION);
   Serial.println("Setup completed.");
 }
@@ -64,13 +66,19 @@ void initSerial() {
 }
 
 void initLed() {
-  Serial.printf("Initializing LED on pin %d...", PIN_LED);
-  led.setPin(PIN_LED);
+  Serial.printf("Initializing RGB LED on pins %d, %d, %d...", PIN_LED_RED, PIN_LED_GREEN, PIN_LED_BLUE);
+  led.setPins(PIN_LED_RED, PIN_LED_GREEN, PIN_LED_BLUE);
   Serial.println("DONE.");
 }
 
 void initNetwork() {
   Serial.printf("Initializing connection to the network with MAC address %s using WiFiManager (SSID: %s)...", WiFi.macAddress().c_str(), WIFI_AP_SSID);
+  wifiManager.setAPCallback([&](WiFiManager *mgr) {
+    led.onWifiManagerAccessPointModeStarted();
+  });
+  wifiManager.setSaveConfigCallback([&]() {
+    led.onWifiManagerAccessPointModeEnded();
+  });
   wifiManager.autoConnect(WIFI_AP_SSID, WIFI_AP_PASSWORD);
   Serial.printf("DONE. IP address: %s, MAC address: %s\n", WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str());
 }
@@ -90,8 +98,8 @@ void initTemperatureSensor() {
 }
 
 void initOneWireSensor() {
-  Serial.printf("Init OneWire sensor on pin %d... ", 4);
-  oneWire.setPin(4);
+  Serial.printf("Init OneWire sensor on pin %d... ", 12);
+  oneWire.setPin(12);
   Serial.print("Connected: ");
   Serial.print(oneWire.isConnected());
   Serial.println(" DONE.");
@@ -127,7 +135,7 @@ void initBlynkClient() {
 
 void initUpdater() {
   Serial.print("Initializing over-the-air updater...");
-  updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD, ifttt);
+  updater.initialize(OTA_UPDATE_HOSTNAME, OTA_UPDATE_PASSWORD, ifttt, led);
   Serial.println("DONE.");
 }
 
@@ -174,6 +182,7 @@ void onTimerInterval() {
 
 void measureAndUpdateTargets() {
   Serial.print("Timer: ");
+  led.onMeasurementStarted();
   Measurement m = dht.getMeasuredData();
 
   Serial.print("Sending data to ThingSpeak...");
@@ -194,24 +203,25 @@ void measureAndUpdateTargets() {
   blynk.sendUpdate(temp);
   Serial.println(" DONE.");
 
+  led.onMeasurementEnded();
   Serial.print("Timer: DONE.");
 }
 
 void onRootRequest() {
   Serial.println("Received HTTP request to /");
-  led.turnOff();
+  led.onWebrequestStarted();
   sendResponse(String("OK from ") + WiFi.localIP().toString().c_str());
-  led.turnOn();
+  led.onWebrequestEnded();
 }
 
 void onTempRequest() {
   Serial.println("Received HTTP request to /temp");
-  led.turnOff();
+  led.onWebrequestStarted();
   Measurement measurement = dht.getMeasuredData();
   magicMirror.sendTemperature(measurement.temperature, measurement.humidity);
   String response = buildTempReponse(measurement);
   sendResponse(response);
-  led.turnOn();
+  led.onWebrequestEnded();
 }
 
 void sendResponse(String content) {

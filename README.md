@@ -2,6 +2,16 @@
 
 A network connected thermometer implemented with ESP8266 and DHT22.
 
+## Status LED
+
+SmarTherm uses a single common anode (+) RGB LED to visually signal various events and states of the device:
+
+- Blue: The boot sequence is in progress.
+- Green: Measurement and updating external services is in progress, or a webrequest is being handled.
+- Orange: An over-the-air update is in progress, or the device could not connect to the wireless network and entered access point mode during boot.
+- Red: The last over-the-air update has been failed.
+
+
 ## Sending measured data to external services
 
 SmarTherm not only collects data, but forwards them to cloud services.

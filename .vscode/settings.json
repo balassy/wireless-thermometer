@@ -5,10 +5,11 @@
     ],
     "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2, ColumnLimit: 0, IndentCaseLabels: true, AllowShortCaseLabelsOnASingleLine: true }",
     "files.associations": {
-        "array": "cpp",
-        "deque": "cpp",
-        "unordered_map": "cpp",
-        "vector": "cpp",
-        "initializer_list": "cpp"
+      "array": "cpp",
+      "deque": "cpp",
+      "unordered_map": "cpp",
+      "vector": "cpp",
+      "initializer_list": "cpp",
+      "functional": "cpp"
     }
 }

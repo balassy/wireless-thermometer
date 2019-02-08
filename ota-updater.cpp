@@ -2,12 +2,13 @@
 
 #include "ota-updater.h"
 
-void OTAUpdater::initialize(const char* hostName, const char* password, IftttClient &ifttt) {
+void OTAUpdater::initialize(const char* hostName, const char* password, IftttClient &ifttt, StatusLed &statusLed) {
   ArduinoOTA.setHostname(hostName);
   ArduinoOTA.setPassword(password);
 
   // The "[&]" is responsible for variable capture for lambda functions in C++ 11 (Read more: https://www.cprogramming.com/c++11/c++11-lambda-closures.html)
   ArduinoOTA.onStart([&]() {
+    statusLed.onOtaUpdateStarted();
     String type;
     if (ArduinoOTA.getCommand() == U_FLASH) {
       type = "sketch";
@@ -21,6 +22,7 @@ void OTAUpdater::initialize(const char* hostName, const char* password, IftttCli
   });
 
   ArduinoOTA.onEnd([&]() {
+    statusLed.onOtaUpdateEnded();
     ifttt.triggerEvent(IFTTT_WEBHOOK_EVENT_NAME, "Update ended", "The over-the-air update has been finished on your device.");
     Serial.println("\nUpdater: Ended.");
   });
@@ -30,6 +32,7 @@ void OTAUpdater::initialize(const char* hostName, const char* password, IftttCli
   });
 
   ArduinoOTA.onError([&](ota_error_t error) {
+    statusLed.onOtaUpdateFailed();
     Serial.printf("Updater: Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) {
       Serial.println("Updater: Auth Failed");

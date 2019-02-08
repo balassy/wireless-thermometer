@@ -1,11 +1,9 @@
 const char* APP_VERSION = "0.0.1";
 
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 16
-#endif
-
-const int PIN_LED = LED_BUILTIN;        // The number of the PCB bin to where the status LED is connected.
-const int PIN_TEMPERATURE_SENSOR = 14;  // The number of the PCB pin to where the DHT22 sensor is connected.
+const int PIN_LED_RED = 5;              // The number of the GPIO pin where the red cathode (-) of the RGB LED is connected. (5 = D1)
+const int PIN_LED_GREEN = 4;            // The number of the GPIO pin where the green cathode (-) of the RGB LED is connected. (4 = D2)
+const int PIN_LED_BLUE = 0;             // The number of the GPIO pin where the blue cathode (-) of the RGB LED is connected. (0 = D3)
+const int PIN_TEMPERATURE_SENSOR = 14;  // The number of the GPIO pin where the DHT22 sensor is connected. (14 = D5)
 
 const char* WIFI_AP_SSID = "TODO_THERMO_AP";            // The name of the wireless network to create if cannot connect using the previously saved credentials.
 const char* WIFI_AP_PASSWORD = "TODO_THERMO_PASSWORD";  // The password required to connect to the wireless network used to configure the network parameters.
